@@ -4,7 +4,7 @@ helpAndUsage="etrn is a simple script designed as a front-end for the infamous r
 tool. etrn was designed with backups in mind and can be used when syncing files via
 ssh between the host machine and a remote server (capable of rsync communication).
 
-Usage: $(basename $0) [OPTIONS]
+Usage: $(basename "${0}") [OPTIONS]
 
 Options:
 	mandatory
@@ -27,12 +27,12 @@ getHelp() {
 	# since it is not an internal error which
 	# caused the failure of the script, but
 	# some user error, 0 is returned;
-	echo "$helpAndUsage" 1>&2; exit 0;
+	echo "${helpAndUsage}" 1>&2; exit 0;
 }
 
 # used to indicate the route used in the syncing process:
 # 	- 0 = local->remote
-#	- 1 = remote->local
+#	  - 1 = remote->local
 operationMode=0
 
 # parsing CLI arguments;
@@ -69,23 +69,23 @@ fi
 # requested as input during the execution of the script, in order to prevent
 # such sensitive details from being stored in the bash history;
 # the input prompts will appear as long as the provided input is empty
-read -e -p "Enter the user to login on the remote machine as: " remoteUser
+read -r -e -p "Enter the user to login on the remote machine as: " remoteUser
 while [ -z "${remoteUser}" ]; do
-	read -e -p "Enter the user to login on the remote machine as: " remoteUser
+	read -r -e -p "Enter the user to login on the remote machine as: " remoteUser
 done
 
-read -e -p "Enter the remote machine address: " remoteAddress
+read -r -e -p "Enter the remote machine address: " remoteAddress
 while [ -z "${remoteAddress}" ]; do
-	read -e -p "Enter the remote machine address: " remoteAddress
+	read -r -e -p "Enter the remote machine address: " remoteAddress
 done
 
 
 # dry run! prompting the user with the changes which will occur;
 # local->remote operation mode
-if [ $operationMode -eq 0 ]; then
+if [ ${operationMode} -eq 0 ]; then
 	# ssh key path was provided
 	if [ -n "${sshKeyPath}" ]; then
-		sudo rsync -ahvn --delete -e 'ssh -p '"$remotePort"' -i '"${sshKeyPath}"'' "${localPath}" "${remoteUser}"@"${remoteAddress}":"${remotePath}"
+		sudo rsync -ahvn --delete -e 'ssh -p '"${remotePort}"' -i '"${sshKeyPath}"'' "${localPath}" "${remoteUser}"@"${remoteAddress}":"${remotePath}"
 	# password-based ssh login is used
 	else
 		sudo rsync -ahvn --delete -e 'ssh -p '"${remotePort}"'' "${localPath}" "${remoteUser}"@"${remoteAddress}":"${remotePath}"
@@ -115,19 +115,19 @@ fi
 
 
 # making sure the user agrees with the changes
-read -e -p "Do you accept these changes? [y/n]: " proceed
-while [ "$proceed" != "y" ] && [ "$proceed" != "n" ]; do
-	read -e -p "Do you accept these changes? [y/n]: " proceed
+read -r -e -p "Do you accept these changes? [y/n]: " proceed
+while [ "${proceed}" != "y" ] && [ "${proceed}" != "n" ]; do
+	read -r -e -p "Do you accept these changes? [y/n]: " proceed
 done
 
-if [ "$proceed" = "n" ]; then
+if [ "${proceed}" = "n" ]; then
 	exit 0;
 fi
 
 
 # 'wet' run!
 # local->remote operation mode
-if [ $operationMode -eq 0 ]; then
+if [ ${operationMode} -eq 0 ]; then
 	if [ -n "${sshKeyPath}" ]; then
 		sudo rsync -ahv --progress --delete -e 'ssh -p '"${remotePort}"' -i '"${sshKeyPath}"'' "${localPath}" "${remoteUser}"@"${remoteAddress}":"${remotePath}"
 	else
